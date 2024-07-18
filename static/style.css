@@ -1,0 +1,172 @@
+/* Improved styles */
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: #1a202c;
+    font-family: Arial, sans-serif;
+}
+.navbar {
+    width: 100%;
+    background-color: #2d3748; /* Matching the theme */
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.navbar a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 48px); /* Adjusting for navbar height */
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+.interaction-container {
+    background-color: #2d3748; /* Slightly lighter for better contrast */
+    border: 1px solid #4a5568; /* Subtle border color */
+    border-radius: 0.375rem;
+    padding: 1rem;
+    overflow-y: auto;
+    flex-grow: 1;
+    margin: 0;
+}
+.message {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+}
+.user-message {
+    background-color: #3182ce; /* Softer blue for better visibility */
+    color: #ffffff; /* White text for better readability */
+    text-align: left;
+    display: pre-wrap;
+    align-items: center;
+}
+.response-message {
+    background-color: #38a169; /* Green for responses */
+    color: #ffffff; /* White text */
+    text-align: left;
+    white-space: pre-wrap;
+    align-items: center;
+}
+.system-message {
+    background-color: #6b7280; /* A neutral gray color */
+    color: #ffffff; /* White text for contrast */
+    text-align: left;
+    display: pre-wrap;
+    align-items: center;
+}
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+    background-image: url('https://cdn-icons-png.flaticon.com/512/147/147144.png');
+    background-size: cover;
+}
+.textarea-container {
+    position: relative;
+    width: 100%;
+}
+textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 0.375rem;
+    background-color: #edf2f7; /* Lighter background for the input field */
+    color: #2d3748; /* Darker text for better contrast */
+}
+button {
+    cursor: pointer;
+    background-color: #4a90e2;
+    color: white;
+    border-radius: 0.375rem;
+    border: none;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+button:hover {
+    background-color: #4299e1; /* Slightly darker on hover */
+}
+.code-block {
+    background-color: #2d3748; /* Code block background */
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+    color: #cbd5e0; /* Light gray text for better readability */
+}
+.code-block pre {
+    margin: 0;
+}
+.bg-gray-700 {
+    width: 256px; /* Increased from w-64 (16rem or 256px) if needed */
+}
+
+.session-divider {
+    border-bottom: 1px solid #4a5568; /* Subtle divider color */
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* General scrollbar styling for both boxes */
+::-webkit-scrollbar {
+    width: 12px; /* width of the entire scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: darkgrey; /* color of the draggable part */
+    border-radius: 6px; /* roundness of the draggable part */
+    border: 3px solid #2D3748; /* Creates a border inside the scrollbar thumb */
+}
+
+::-webkit-scrollbar-track {
+    background: #1A202C; /* color of the track */
+    border-radius: 6px; /* roundness of the track */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #4A5568; /* color of the thumb on hover */
+}
+
+/* Specific targeting for the session list and interaction box */
+#sessionList::-webkit-scrollbar, #interaction-box::-webkit-scrollbar {
+    width: 12px;
+}
+
+#sessionList::-webkit-scrollbar-thumb, #interaction-box::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    border-radius: 6px;
+    border: 3px solid #2D3748;
+}
+
+#sessionList::-webkit-scrollbar-track, #interaction-box::-webkit-scrollbar-track {
+    background: #1A202C;
+    border-radius: 6px;
+}
+
+#sessionList::-webkit-scrollbar-thumb:hover, #interaction-box::-webkit-scrollbar-thumb:hover {
+    background-color: #4A5568;
+}
+.session-link {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 350px; /* Adjust based on your design needs */
+}
+
+.session-link:hover {
+    overflow: visible;
+    white-space: normal;
+    background-color: #444; /* Dark background for better readability */
+    color: white;
+    text-overflow: clip;
+    z-index: 1000;
+    position: relative;
+}

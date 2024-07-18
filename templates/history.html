@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interaction Portal</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.1/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interaction Portal</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.1/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-800 text-white font-sans">
+<!-- Full-screen flex container -->
+<div class="flex h-screen overflow-hidden">
+
+    
+    <!-- Sidebar for sessions -->
+    <div class="bg-gray-700 w-64 overflow-y-auto" style="width: 350px;">
+        <h2 class="text-white text-lg p-5">Sessions</h2>
+        <div class="px-5">
+            <input type="text" id="sessionSearch" placeholder="Search sessions..." class="text-gray-900 bg-white rounded p-2 mb-4 w-full">
+            <button onclick="createNewSession()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 w-full">New Session</button>
+        </div>
+        <ul id="sessionList" class="px-5">
+            <!-- Session items will be dynamically added here -->
+        </ul>
+    </div>
+
+    <!-- Main content area -->
+    <div class="flex-1 flex flex-col">
+        <!-- Navbar -->
+        <div class="navbar sticky top-0 z-10 bg-gray-800 p-4">
+            <a href="/" class="text-white">Home</a>
+            <a href="/logout" class="text-white">Logout</a>
+        </div>
+        
+        <!-- Content area including interaction box and fixed input area -->
+        <div class="flex flex-col flex-1 overflow-y-auto">
+            <div id="interaction-box" class="overflow-y-auto flex-1 p-4">
+                <!-- Interactions will be displayed here -->
+
+            </div>
+            <!-- Fixed Textarea and Button Container at the bottom -->
+            <div class="textarea-container bg-gray-800 p-4">
+                <textarea id="dataInput" placeholder="Type your input here..." class="text-gray-900 w-full rounded p-2"></textarea>
+                <button id="sendButton" onclick="sendData()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 w-full">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+
+
+<script>
+var sessionId = "{{ session_id }}";  
+loadSession(sessionId) ;
+document.addEventListener("DOMContentLoaded", function() {
+    fetchSessions();  // Load sessions when the page is ready
+});
+
+var allSessions = [];  // Array to store all fetched session data
+
+function fetchSessions() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/api/sessions", true);
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            allSessions = JSON.parse(xhr.responseText);
+            updateSessionList(allSessions);  // Call function to update the UI with fetched sessions
+        } else {
+            console.error("Failed to fetch sessions:", xhr.responseText);
+        }
+    };
+    xhr.send();
+}
+
+function updateSessionList(sessions) {
+    var sessionList = document.getElementById("sessionList");
+    sessionList.innerHTML = '';  // Clear previous entries
+
+    sessions.forEach(function(session, index) {
+        var listItem = document.createElement('li');
+        // Strip "Description: " from the summary and handle missing summaries
+        var summaryText = session.summary ? session.summary.replace('Description: ', '') : 'No summary available';
+        listItem.innerHTML = `<a href="/interact_history/${session.session_id}" class="session-link">${summaryText}</a>`;
+        sessionList.appendChild(listItem);
+
+        // Add a divider after each session except the last one
+        if (index < sessions.length - 1) {
+            var divider = document.createElement('div');
+            divider.className = 'session-divider';
+            sessionList.appendChild(divider);
+        }
+    });
+}
+
+
+function searchSessions() {
+    var searchText = document.getElementById('sessionSearch').value.toLowerCase();
+    var filteredSessions = allSessions.filter(function(session) {
+        return session.session_id.toLowerCase().includes(searchText) ||
+               (session.summary && session.summary.toLowerCase().includes(searchText));
+    });
+    updateSessionList(filteredSessions);  // Update the list with filtered sessions
+}
+
+document.getElementById('sessionSearch').addEventListener('input', searchSessions);
+
+function createNewSession() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/new-session", true);  // Assuming '/api/new-session' is your API endpoint for creating sessions
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            var sessionId = response.session_id;
+            window.location.href = '/interact_history/' + sessionId;  // Redirect to the session interaction page
+        } else {
+            console.error("Failed to create new session:", xhr.responseText);
+        }
+    };
+    xhr.send();
+}
+
+function loadSession(sessionId) {
+    console.log("Loading session:", sessionId); // Debugging output to console
+
+    var xhr = new XMLHttpRequest(); // Create new XMLHttpRequest object
+    xhr.open("POST", "/api", true); // Prepare POST request to your API endpoint
+    xhr.setRequestHeader("Content-Type", "application/json"); // Set content type header for JSON
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            var jsonResponse = JSON.parse(xhr.responseText); // Parse JSON response
+            updateChatDisplay(jsonResponse.history); // Function to update chat display with new data
+        } else {
+            console.error("Failed to load session data:", xhr.statusText); // Error handling
+        }
+    };
+    xhr.send(JSON.stringify({"data": "system", "session_id": sessionId}));
+
+}
+
+
+function validateInput(input) {
+    if (input.trim().length === 0) {
+        alert("Please enter valid input. Input should not be empty.");
+        return false;
+    }
+    return true;
+}
+
+
+function sendData() {
+    var input = document.getElementById("dataInput").value;
+    if (!validateInput(input)) return;
+
+    var sendButton = document.getElementById("sendButton");
+    sendButton.innerHTML = 'Loading...';  // Change button text to show loading
+    sendButton.disabled = true;  // Disable the button to prevent multiple submissions
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {  // Check if the request is complete
+            sendButton.innerHTML = 'Submit';  // Revert button text back to original
+            sendButton.disabled = false;  // Re-enable the button
+
+            if (xhr.status === 200) {
+                var jsonResponse = JSON.parse(xhr.responseText);
+                updateChatDisplay(jsonResponse.history);
+                document.getElementById("dataInput").value = '';  // Clear input after successful send
+            } else {
+                console.error("Failed to send data: ", xhr.responseText);
+                alert("Error: Failed to send data.");  // Optionally alert the user of the failure
+            }
+        }
+    };
+
+    var data = JSON.stringify({"data": input, "session_id": sessionId});
+    xhr.send(data);
+}
+
+
+function updateChatDisplay(history) {
+    var interactionBox = document.getElementById("interaction-box");
+    interactionBox.innerHTML = '';  // Clear existing contents
+
+    history.forEach(function(message) {
+        var messageDiv = document.createElement('div');
+        if (message.role === 'system') {
+            messageDiv.className = 'message system-message';
+            var formattedContent = '<b>'+message.role.toUpperCase()+': <br></b>'+ formatMessageContent(message.content);
+
+        } else {
+            messageDiv.className = 'message ' + (message.role === 'user' ? 'user-message' : 'response-message');
+            var formattedContent = '<b>'+message.role.toUpperCase()+': <br></b>'+ formatMessageContent(message.content);
+
+        }
+
+        // Check for code blocks in the message content
+        messageDiv.innerHTML = '<span class="avatar"></span>' + formattedContent;
+        interactionBox.appendChild(messageDiv);
+    });
+
+    interactionBox.scrollTop = interactionBox.scrollHeight;  // Scroll to the bottom
+}
+
+
+function formatMessageContent(content) {
+    var formattedResponse = '';
+    var sections = content.split(/```(\w+)\s*\n([\s\S]*?)```/g);
+
+    for (var i = 0; i < sections.length; i += 3) {
+        var contentBefore = sections[i];
+        var lang = sections[i + 1];
+        var code = sections[i + 2];
+
+        formattedResponse += contentBefore;
+        if (lang !== undefined && code !== undefined) {
+            formattedResponse += '<div class="code-block"><pre><code class="language-' + lang + '">' + code + '</code></pre><button onclick="copyCode(this)">Copy</button></div>';
+
+        }
+    }
+
+    return formattedResponse;
+}
+
+
+function copyCode(button) {
+    var code = button.previousElementSibling.textContent;
+    navigator.clipboard.writeText(code).then(function() {
+        console.log('Copied successfully!');
+    }, function(err) {
+        console.error('Failed to copy text: ', err);
+    });
+}
+
+function escapeHTML(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+document.getElementById("dataInput").addEventListener("keypress", function(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendData();
+    }
+});
+
+</script>
+
+</body>
+</html>
