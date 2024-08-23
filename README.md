@@ -1,8 +1,7 @@
 Flask Chat Application Documentation
 
 Screenshot 
-
-![image](https://github.com/user-attachments/assets/7a5aeae1-a00f-404a-8e49-cdffe75050f3)
+![350107040-7a5aeae1-a00f-404a-8e49-cdffe75050f3](https://github.com/user-attachments/assets/93111de7-4127-467c-afd0-8b52d95e6e68)
 
 Overview
 
